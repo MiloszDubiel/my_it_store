@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
+import Navbar from "../../components/layout/Navbar";
 
 const HomePage = () => {
   //Takie podejscie ma sens gdy funckja jest wywoływana w evencie
@@ -24,6 +25,7 @@ const HomePage = () => {
 
   return (
     <>
+      <Navbar />
       <section className="bg-orange-500 text-white py-16 text-center">
         <h1 className="text-4xl font-bold mb-4">Aktualne Oferty</h1>
         <p className="text-lg">Najlepsze promocje w My IT Store</p>

@@ -1,5 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 
 const LoginPage: React.FC = () => {
@@ -10,9 +12,12 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
+  const { login } = useAuth();
   const validateEmail = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/?.test(email);
   };
+
+  const navigate = useNavigate();
 
   const handleLogin = useCallback(
     async (e: React.SubmitEvent) => {
@@ -37,20 +42,22 @@ const LoginPage: React.FC = () => {
           },
         );
 
+        const { accessToken } = response.data;
+
+        login(accessToken);
         if (rememberMe) {
-          localStorage.setItem("token", response.data.accessToken);
+          localStorage.setItem("token", accessToken);
         } else {
-          sessionStorage.setItem("token", response.data.accessToken);
+          sessionStorage.setItem("token", accessToken);
         }
 
-        setInfo("Zalogowano pomyślnie!");
-        console.log(response.data);
-      } catch (error: any) {
-        console.log(error);
-        setError(error.response?.data?.message || "Błędny email lub hasło.");
+        navigate("/");
+      } catch (err) {
+        setError("Błąd logowania");
+        console.log(err);
       }
     },
-    [email, password, rememberMe],
+    [email, password, rememberMe, login, navigate],
   );
 
   return (

@@ -1,18 +1,69 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 interface OfferCardProps {
-  title: string;
-  category: string;
-  price: number;
+  id: string;
+  product: any;
 }
 
-const OfferCard: React.FC<OfferCardProps> = ({ title, category, price }) => {
+const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
+  const [favorite, setFavorite] = useState(false);
+
+  const slug = product.product_data.name.toLowerCase().replace(/ /g, "-");
+
   return (
-    <div className="border rounded-lg p-4 hover:shadow-lg transition">
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="text-sm text-gray-500">{category}</p>
-      <p className="mt-2 font-bold">${price}</p>
-    </div>
+    <Link
+      to={`/offers/${slug}/${id}`}
+      className="block bg-white border hover:shadow-lg transition p-4"
+    >
+      <div className="flex gap-6 items-center">
+        <div className="w-40 h-32 flex-shrink-0">
+          <img
+            src={product.product_data.images[0].url}
+            alt={product.product_data.name}
+            className="w-full h-full object-contain"
+          />
+        </div>
+
+        <div className="flex-1">
+          <h3 className="text-lg font-semibold line-clamp-2 hover:text-orange-600 transition">
+            {product.product_data.name}
+          </h3>
+
+          <p className="text-sm text-gray-500 mt-2">
+            Dostępna szybka wysyłka • Gwarancja 24 miesiące
+          </p>
+        </div>
+
+        <div
+          className="flex flex-col items-end gap-3"
+          onClick={(e) => e.preventDefault()}
+        >
+          <p className="text-2xl font-bold text-gray-900">{product.price} zł</p>
+
+          <button className="bg-orange-500 text-white px-6 py-2  hover:bg-orange-600 transition font-semibold">
+            Dodaj do koszyka
+          </button>
+
+          <button onClick={() => setFavorite(!favorite)} className="transition">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill={favorite ? "#f97316" : "none"}
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke={favorite ? "#f97316" : "currentColor"}
+              className="size-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </Link>
   );
 };
 

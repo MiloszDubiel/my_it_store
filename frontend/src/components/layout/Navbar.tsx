@@ -21,25 +21,15 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="bg-white shadow-md px-6 py-3 flex items-center justify-between w-full relative">
-      {/* Logo */}
+      {/* LEWA STRONA */}
       <Link to="/" className="text-2xl font-bold text-orange-500">
         My IT Store
       </Link>
 
-      {/* Wyszukiwarka */}
-      <div className="flex-1 mx-6">
+      {/* ŚRODEK - wyszukiwarka + link */}
+      <div className="flex items-center gap-6 flex-1 mx-6">
+        {/* Wyszukiwarka */}
         <div className="flex items-center border overflow-hidden focus-within:ring-2 focus-within:ring-orange-100 w-1/3">
-          <select
-            className="bg-gray-100 px-3 py-2 text-sm outline-none border-r"
-            defaultValue="all"
-          >
-            <option value="all">Wszystkie</option>
-            <option value="laptops">Laptopy</option>
-            <option value="components">Podzespoły</option>
-            <option value="phones">Telefony</option>
-            <option value="accessories">Akcesoria</option>
-          </select>
-
           <div className="relative flex-1">
             <input
               type="text"
@@ -56,6 +46,14 @@ const Navbar: React.FC = () => {
             Szukaj
           </button>
         </div>
+
+        {/* LINK PO WYSZUKIWARCE */}
+        <Link
+          to="/offers"
+          className="whitespace-nowrap text-gray-700 font-medium hover:text-orange-600 transition"
+        >
+          Wszystkie produkty
+        </Link>
       </div>
 
       {/* Ikony + Konto */}
@@ -84,7 +82,7 @@ const Navbar: React.FC = () => {
           </button>
 
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white border shadow-lg rounded-lg py-2 z-50">
+            <div className="absolute right-0 mt-2 w-56 bg-white border shadow-lg  py-2 z-50">
               {!isAuthenticated ? (
                 <>
                   <Link

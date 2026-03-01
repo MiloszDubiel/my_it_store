@@ -69,7 +69,8 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Nieprawidłowe hasło" });
     }
 
-    const accessExpires: unknown = process.env.ACCESS_TOKEN_EXPIRES;
+    const accessExpires = parseInt(process.env.ACCESS_TOKEN_EXPIRES || "900");
+
     if (!accessExpires || typeof accessExpires !== "number")
       throw new Error(
         "ACCESS_TOKEN_EXPIRES nie ustawiony w .env lub nie jest liczba",
