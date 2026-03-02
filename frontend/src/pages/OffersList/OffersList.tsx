@@ -1,32 +1,46 @@
 import Navbar from "../../components/layout/Navbar";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import axios from "axios";
 import OfferCard from "../../components/ui/OffersCard";
 import Pagination from "../../components/ui/Pagination";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import FiltersSidebar from "../../components/layout/FiltersSidebar";
+
 const OffersList = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [searchParams] = useSearchParams();
+  const [sort, setSort] = useState(searchParams.get("sort") || "");
 
   const allParams = Object.fromEntries(searchParams.entries());
 
-  const { page, ...filters } = allParams;
+  const { page, search, ...filters } = allParams;
+
+  const location = useLocation();
+
+  const { state } = location;
 
   const currentPage = Number(page || 1);
   const itemsPerPage = 10;
+  const navigate = useNavigate();
+
+  const filtersMemo = useMemo(
+    () => filters,
+    [JSON.stringify(filters), search, sort],
+  );
 
   const fetchOffers = useCallback(async () => {
     try {
+      const params = new URLSearchParams(filtersMemo);
+      if (search) params.set("search", search);
+      if (sort) params.set("sort", sort);
       const response = await axios.get(
-        "http://localhost:5000/allegro/products",
+        `http://localhost:5000/allegro/products?${params.toString()}`,
       );
       setProducts(response.data);
     } catch (err) {
       console.log(err);
     }
-  }, []);
-  console.log(products[0]);
+  }, [filtersMemo, search, sort]);
 
   useEffect(() => {
     fetchOffers();
@@ -39,21 +53,86 @@ const OffersList = () => {
 
   const currentProducts = products.slice(startIndex, endIndex);
 
+  sort ? searchParams.set("sort", sort) : searchParams.delete("sort");
   return (
     <>
       <Navbar />
 
       <div className="flex gap-6 max-w-7xl mx-auto p-6">
         <FiltersSidebar
-          categories={["Laptopy", "Komputery", "Podzespoły"]}
+          categories={[
+            "Zestawy",
+            "Wentylatory",
+            "Radiatory",
+            "Płyty główne",
+            "Procesory",
+            "Pozostałe",
+            "Pasty i taśmy termoprzewodzące",
+            "Panele i czytniki",
+            "Pamięć RAM",
+            "Ogniwa peltiera",
+            "Obudowy",
+            "Napędy",
+            "Laptopy",
+            "Kontrolery komputerowe",
+            "Konektory i kable antenowe",
+            "Komputery stacjonarne",
+            "Karty graficzne",
+            "Karty diagnostyczne",
+            "Dyski SSD",
+            "Dyski HDD",
+            "Części",
+            "Chłodzenie procesorów",
+            "Chłodzenie kart graficznych",
+            "Chłodnice",
+          ]}
           brands={["Samsung", "Asus", "MSI", "HP"]}
         />
         <div className="p-6 max-w-6xl mx-auto space-y-4">
-          {currentProducts.map((product: any) => (
-            <OfferCard key={product} id={product.id} product={product} />
-          ))}
+          {currentProducts.length > 0 ? (
+            <>
+              {" "}
+              <div className="flex flex-col items-end mb-4">
+                <div className="w-full">
+                  {searchParams.get("search") && (
+                    <h1 className="text-gray-600 mb-2">
+                      Wyniki wyszukiwania dla frazy:{" "}
+                      <span className="font-semibold text-orange-500">
+                        {searchParams.get("search")}
+                      </span>
+                    </h1>
+                  )}
+                </div>
 
-          <Pagination totalPages={totalPages} />
+                <h3 className="font-semibold mb-2">Sortuj</h3>
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="w-52 border px-2 py-1 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                >
+                  <option value="">Domyślnie</option>
+                  <option value="price_asc">Cena rosnąco</option>
+                  <option value="price_desc">Cena malejąco</option>
+                  <option value="rating_desc">Najlepsze oceny</option>
+                </select>
+              </div>
+              {currentProducts.map((product: any) => (
+                <OfferCard key={product.id} id={product.id} product={product} />
+              ))}
+            </>
+          ) : (
+            <p>Brak produktów spełniających kryteria.</p>
+          )}
+
+          <Pagination
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={(page) => {
+              const params = new URLSearchParams(searchParams);
+              params.set("page", page.toString());
+              navigate(`?${params.toString()}`);
+            }}
+          />
         </div>
       </div>
     </>

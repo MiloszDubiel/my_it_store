@@ -11,15 +11,37 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
 
   const slug = product.product_data.name.toLowerCase().replace(/ /g, "-");
 
+  const category = product.category_name || "Brak kategorii";
+
+  const importantParams = [
+    "Marka",
+    "Model",
+    "Przekątna ekranu",
+    "Pojemność dysku",
+    "Pamięć RAM",
+  ];
+  const displayedParams: string[] = [];
+
+  importantParams.forEach((paramName) => {
+    const param = product.product_data.parameters?.find(
+      (p: any) => p.name === paramName,
+    );
+    if (param) {
+      const value = param.valuesLabels?.[0] || param.values?.[0];
+      if (value && displayedParams.length < 3)
+        displayedParams.push(`${paramName}: ${value}`);
+    }
+  });
+
   return (
     <Link
       to={`/offers/${slug}/${id}`}
       className="block bg-white border hover:shadow-lg transition p-4"
     >
-      <div className="flex gap-6 items-center">
+      <div className="flex gap-6 items-start">
         <div className="w-40 h-32 flex-shrink-0">
           <img
-            src={product.product_data.images[0].url}
+            src={product.product_data.images[0]?.url}
             alt={product.product_data.name}
             className="w-full h-full object-contain"
           />
@@ -29,6 +51,15 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
           <h3 className="text-lg font-semibold line-clamp-2 hover:text-orange-600 transition">
             {product.product_data.name}
           </h3>
+
+         
+          <p className="text-sm text-gray-500 mt-1">Kategoria: {category}</p>
+
+          <ul className="text-sm text-gray-600 mt-1 space-y-1">
+            {displayedParams.map((param) => (
+              <li key={param}>{param}</li>
+            ))}
+          </ul>
 
           <p className="text-sm text-gray-500 mt-2">
             Dostępna szybka wysyłka • Gwarancja 24 miesiące
@@ -41,7 +72,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
         >
           <p className="text-2xl font-bold text-gray-900">{product.price} zł</p>
 
-          <button className="bg-orange-500 text-white px-6 py-2  hover:bg-orange-600 transition font-semibold">
+          <button className="bg-orange-500 text-white px-6 py-2 hover:bg-orange-600 transition font-semibold">
             Dodaj do koszyka
           </button>
 
@@ -52,7 +83,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke={favorite ? "#f97316" : "currentColor"}
-              className="size-6"
+              className="w-6 h-6"
             >
               <path
                 strokeLinecap="round"

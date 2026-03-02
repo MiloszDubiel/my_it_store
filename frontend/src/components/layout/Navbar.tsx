@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useCallback, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   Heart,
@@ -13,28 +13,37 @@ import {
 const Navbar: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState<string>("");
+
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     setIsOpen(false);
   };
 
+  const searchProduct = useCallback(() => {
+    const query = search.trim().toLowerCase();
+    if (query) {
+      navigate(`/offers?search=${encodeURIComponent(query)}&page=1`);
+    }
+  }, [search, navigate]);
+
   return (
     <nav className="bg-white shadow-md px-6 py-3 flex items-center justify-between w-full relative">
-      {/* LEWA STRONA */}
       <Link to="/" className="text-2xl font-bold text-orange-500">
         My IT Store
       </Link>
 
-      {/* ŚRODEK - wyszukiwarka + link */}
       <div className="flex items-center gap-6 flex-1 mx-6">
-        {/* Wyszukiwarka */}
         <div className="flex items-center border overflow-hidden focus-within:ring-2 focus-within:ring-orange-100 w-1/3">
           <div className="relative flex-1">
             <input
               type="text"
               placeholder="Szukaj produktów..."
               className="w-full pl-10 pr-4 py-2 outline-none"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
             />
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -42,7 +51,10 @@ const Navbar: React.FC = () => {
             />
           </div>
 
-          <button className="bg-orange-500 text-white px-5 py-2 hover:bg-orange-600 transition">
+          <button
+            className="bg-orange-500 text-white px-5 py-2 hover:bg-orange-600 transition"
+            onClick={searchProduct}
+          >
             Szukaj
           </button>
         </div>

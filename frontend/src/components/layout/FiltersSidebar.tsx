@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface FiltersSidebarProps {
   categories?: string[];
@@ -16,15 +16,15 @@ const FiltersSidebar = ({
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     searchParams.get("categories")?.split(",") || [],
   );
-
   const [selectedBrands, setSelectedBrands] = useState<string[]>(
     searchParams.get("brands")?.split(",") || [],
   );
-
   const [min, setMin] = useState(searchParams.get("min") || "");
   const [max, setMax] = useState(searchParams.get("max") || "");
   const [inStock, setInStock] = useState(searchParams.get("stock") === "1");
   const [rating, setRating] = useState(searchParams.get("rating") || "");
+
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
   const updateURL = () => {
     const params = new URLSearchParams(searchParams);
@@ -63,6 +63,14 @@ const FiltersSidebar = ({
     navigate("/offers");
   };
 
+  const displayedCategories = showAllCategories
+    ? categories
+    : categories.slice(0, 4);
+
+  const hiddenSelectedCount = categories
+    .slice(4)
+    .filter((cat) => selectedCategories.includes(cat)).length;
+
   return (
     <aside className="w-64 bg-white p-5 shadow h-max space-y-6">
       <h2 className="text-lg font-bold">Filtry</h2>
@@ -70,10 +78,11 @@ const FiltersSidebar = ({
       <div>
         <h3 className="font-semibold mb-2">Kategorie</h3>
         <div className="space-y-1">
-          {categories.map((cat) => (
+          {displayedCategories.map((cat) => (
             <label key={cat} className="flex items-center gap-2">
               <input
                 type="checkbox"
+                className="accent-orange-500"
                 checked={selectedCategories.includes(cat)}
                 onChange={() =>
                   toggleValue(cat, selectedCategories, setSelectedCategories)
@@ -82,6 +91,19 @@ const FiltersSidebar = ({
               {cat}
             </label>
           ))}
+          {categories.length > 4 && (
+            <button
+              onClick={() => setShowAllCategories(!showAllCategories)}
+              className="text-orange-500 hover:underline text-sm mt-1 flex items-center gap-1"
+            >
+              {showAllCategories ? "Pokaż mniej" : "Pokaż więcej"}
+              {!showAllCategories && hiddenSelectedCount > 0 && (
+                <span className="text-xs text-white bg-orange-500 rounded-full px-2 py-0.5">
+                  +{hiddenSelectedCount}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -112,6 +134,7 @@ const FiltersSidebar = ({
             <label key={brand} className="flex items-center gap-2">
               <input
                 type="checkbox"
+                className="accent-orange-500"
                 checked={selectedBrands.includes(brand)}
                 onChange={() =>
                   toggleValue(brand, selectedBrands, setSelectedBrands)
@@ -128,6 +151,7 @@ const FiltersSidebar = ({
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
+            className="accent-orange-500"
             checked={inStock}
             onChange={() => setInStock(!inStock)}
           />
@@ -151,13 +175,15 @@ const FiltersSidebar = ({
 
       <button
         onClick={updateURL}
-        className="w-full bg-gray-100 hover:bg-red-100 hover:text-red-500 transition py-2 rounded"
+        className="w-full bg-gray-100 hover:bg-orange-100 hover:text-orange-500 transition py-2 rounded"
       >
-        Wyszukuj
+        Wyszukaj
       </button>
+
+      {/* Przycisk Resetuj */}
       <button
         onClick={resetFilters}
-        className="w-full bg-gray-100 hover:bg-red-100 hover:text-red-500 transition py-2 rounded"
+        className="w-full bg-gray-100 hover:bg-orange-100 hover:text-orange-500 transition py-2 rounded"
       >
         Resetuj filtry
       </button>

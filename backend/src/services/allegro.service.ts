@@ -1,6 +1,7 @@
 import axios from "axios";
 import { connection } from "../config/db.config";
 import console from "node:console";
+import { Query } from "mysql2";
 
 //HELPER
 function randomDate(start: Date, end: Date): Date {
@@ -142,25 +143,52 @@ export const getValidAllegroToken = async (): Promise<string> => {
 
   return tokenData.access_token;
 };
-
 export const saveProducts = async (products: any[]) => {
   const query = `
-      INSERT INTO allegro_products 
-      (external_id, price, stock, createdAt, product_data)
-      VALUES (?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-          price = VALUES(price),
-          stock = VALUES(stock),
-          createdAt = VALUES(createdAt),
-          product_data = VALUES(product_data)
+    INSERT INTO allegro_products 
+    (external_id, price, stock, createdAt, category_id, category_name, brand, model, product_data)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+      price = VALUES(price),
+      stock = VALUES(stock),
+      createdAt = VALUES(createdAt),
+      category_id = VALUES(category_id),
+      category_name = VALUES(category_name),
+      brand = VALUES(brand),
+      model = VALUES(model),
+      product_data = VALUES(product_data)
   `;
 
   for (const product of products) {
+    const path = product.category?.path || [];
+    const lastCategory = path.length ? path[path.length - 1] : null;
+
+    const categoryId = lastCategory?.id || null;
+    const categoryName = lastCategory?.name || null;
+
+    const brandParam = product.parameters?.find(
+      (p: any) => p.name?.toLowerCase() === "marka",
+    );
+    const brand =
+      brandParam?.valuesLabels?.[0] || brandParam?.values?.[0] || null;
+
+    const modelParam = product.parameters?.find(
+      (p: any) => p.name?.toLowerCase() === "model",
+    );
+    const model =
+      modelParam?.valuesLabels?.[0] || modelParam?.values?.[0] || null;
+
+    console.log({ categoryId, categoryName, brand, model });
+
     await connection.query(query, [
       product.id,
       product.price,
       product.stock,
       product.createdAt,
+      categoryId,
+      categoryName,
+      brand,
+      model,
       JSON.stringify(product),
     ]);
   }
@@ -221,7 +249,7 @@ export const fetchComputerOffers = async () => {
       while (true) {
         const params: any = {
           phrase,
-          "category.id": 2,
+          "category.id": categoryId,
           language: "pl-PL",
           limit,
         };
@@ -264,17 +292,89 @@ export const fetchComputerOffers = async () => {
     ...product,
     price: Math.floor(Math.random() * 4000) + 1000,
     stock: Math.floor(Math.random() * 50) + 1,
-    createdAt: formatDateForMySQL(randomDate(new Date(2022, 0, 1), new Date())),
+    createdAt: randomDate(new Date(2022, 0, 1), new Date()),
   }));
 
   await saveProducts(productsWithExtras);
   console.log("Zapisano:", productsWithExtras.length);
 };
 
-export const getProducts = async () => {
-  const [rows] = await connection.query("SELECT * FROM allegro_products");
+const componentsCategories = [
+  "Procesory",
+  "Dyski HDD",
+  "Dyski SSD",
+  "Pamięć RAM",
+  "Karty graficzne",
+  "Płyty główne",
+  "GPU",
+  "CPU",
+  "SSD",
+  "HDD",
+  "RAM",
+];
 
-  return rows;
+function mapMainCategory(categoryName: string | null) {
+  if (!categoryName) return null;
+
+  if (componentsCategories.includes(categoryName)) {
+    return {
+      main: "Podzespoły",
+      sub: categoryName,
+    };
+  }
+
+  return {
+    main: categoryName,
+    sub: null,
+  };
+}
+export const getProducts = async (params: any) => {
+  const { categories, brands, min, max, stock, search } = params;
+
+  let query = "SELECT * FROM allegro_products WHERE 1=1";
+  const queryParams: any[] = [];
+
+  if (categories) {
+    const cats = (categories as string).split(",");
+    query += ` AND category_name IN (${cats.map(() => "?").join(",")})`;
+    queryParams.push(...cats);
+  }
+
+  if (brands) {
+    const b = (brands as string).split(",");
+    query += ` AND brand IN (${b.map(() => "?").join(",")})`;
+    queryParams.push(...b);
+  }
+
+  if (min) {
+    query += " AND price >= ?";
+    queryParams.push(Number(min));
+  }
+
+  if (max) {
+    query += " AND price <= ?";
+    queryParams.push(Number(max));
+  }
+
+  if (stock === "1") {
+    query += " AND stock > 0";
+  }
+
+  if (search) {
+    query += " AND product_data LIKE ?";
+    queryParams.push(`%${search}%`);
+  }
+
+  const [rows]: any = await connection.query(query, queryParams);
+
+  return rows.map((product: any) => {
+    const mapped = mapMainCategory(product.category_name);
+    return {
+      ...product,
+      main_category: mapped?.main,
+      sub_category: mapped?.sub,
+    };
+  });
 };
 
-fetchComputerOffers();
+// fetchComputerOffers();

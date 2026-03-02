@@ -28,8 +28,10 @@ export const allegroCallback = async (req: Request, res: Response) => {
 };
 
 export const getOffersFromDatabase = async (req: Request, res: Response) => {
+  let query = { ...req.query };
+
   try {
-    const offers = await getProducts();
+    const offers = await getProducts(query);
     res.json(offers);
   } catch (err: any) {
     console.error(err);
