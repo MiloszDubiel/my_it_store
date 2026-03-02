@@ -9,7 +9,11 @@ const OffersList = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [searchParams] = useSearchParams();
 
-  const currentPage = Number(searchParams.get("page")) || 1;
+  const allParams = Object.fromEntries(searchParams.entries());
+
+  const { page, ...filters } = allParams;
+
+  const currentPage = Number(page || 1);
   const itemsPerPage = 10;
 
   const fetchOffers = useCallback(async () => {
@@ -22,8 +26,7 @@ const OffersList = () => {
       console.log(err);
     }
   }, []);
-
-  console.log(products);
+  console.log(products[0]);
 
   useEffect(() => {
     fetchOffers();
@@ -42,8 +45,8 @@ const OffersList = () => {
 
       <div className="flex gap-6 max-w-7xl mx-auto p-6">
         <FiltersSidebar
-          categories={["Laptopy", "Telefony", "Podzespoły"]}
-          brands={["Apple", "Samsung", "Asus", "MSI"]}
+          categories={["Laptopy", "Komputery", "Podzespoły"]}
+          brands={["Samsung", "Asus", "MSI", "HP"]}
         />
         <div className="p-6 max-w-6xl mx-auto space-y-4">
           {currentProducts.map((product: any) => (

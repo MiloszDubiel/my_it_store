@@ -1,5 +1,24 @@
 import axios from "axios";
 import { connection } from "../config/db.config";
+import console from "node:console";
+
+//HELPER
+function randomDate(start: Date, end: Date): Date {
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+  );
+}
+
+function formatDateForMySQL(date: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const yyyy = date.getFullYear();
+  const mm = pad(date.getMonth() + 1);
+  const dd = pad(date.getDate());
+  const hh = pad(date.getHours());
+  const mi = pad(date.getMinutes());
+  const ss = pad(date.getSeconds());
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
 
 const CLIENT_ID = process.env.CLIENT_ID!;
 const CLIENT_SECRET = process.env.CLIENT_SECRET!;
@@ -127,18 +146,21 @@ export const getValidAllegroToken = async (): Promise<string> => {
 export const saveProducts = async (products: any[]) => {
   const query = `
       INSERT INTO allegro_products 
-  (external_id, price, product_data)
-  VALUES (?, ?, ?)
-  ON DUPLICATE KEY UPDATE
-      price = VALUES(price),
-      product_data = VALUES(product_data)
-
+      (external_id, price, stock, createdAt, product_data)
+      VALUES (?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+          price = VALUES(price),
+          stock = VALUES(stock),
+          createdAt = VALUES(createdAt),
+          product_data = VALUES(product_data)
   `;
 
   for (const product of products) {
     await connection.query(query, [
       product.id,
       product.price,
+      product.stock,
+      product.createdAt,
       JSON.stringify(product),
     ]);
   }
@@ -151,29 +173,60 @@ export const fetchComputerOffers = async () => {
   const token = await getValidAllegroToken();
 
   const phrases = [
-    "komputer",
-    "laptop",
-    "tablet",
-    "karta graficzna",
-    "procesor",
-    "ram",
-    "dysk ssd",
-    "płyta główna",
-    "monitor",
-    "klawiatura",
-    "mysz",
+    "Komputer",
+    "Laptop",
+    "Karta graficzna",
+    "Procesor",
+    "RAM",
+    "SSD",
+    "HDD",
+    "Płyta główna",
+    "Motherboard",
+    "CPU",
+    "GPU",
+    "Pamięć operacyjna",
+    "Dysk HDD",
+    "Dysk SSD",
   ];
 
-  const categories = ["2", "491", "257767", "4312", "258487"];
+  const categoryIds = {
+    Komputer: "2",
+    Podzespoly: "4226",
+    GPU: "46146",
+    CPU: "260288",
+    Motherboard: "260289",
+  };
 
+  const categories = [
+    categoryIds.Komputer,
+    categoryIds.Podzespoly,
+    categoryIds.GPU,
+    categoryIds.CPU,
+    categoryIds.Motherboard,
+    "257767",
+    "4312",
+    "258487",
+  ];
   const limit = 100;
 
-  const requests = phrases.flatMap((phrase) =>
-    categories.map(async (categoryId) => {
-      let offset = 0;
-      let collected: any[] = [];
+  const sleep = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  let allProducts: any[] = [];
+
+  for (const phrase of phrases) {
+    for (const categoryId of categories) {
+      let pageId: string | undefined = undefined;
 
       while (true) {
+        const params: any = {
+          phrase,
+          "category.id": 2,
+          language: "pl-PL",
+          limit,
+        };
+        if (pageId) params["page.id"] = pageId;
+
         const response = await axios.get(
           "https://api.allegro.pl/sale/products",
           {
@@ -187,38 +240,35 @@ export const fetchComputerOffers = async () => {
               "category.id": categoryId,
               language: "pl-PL",
               limit,
-              offset,
             },
           },
         );
 
-        const products = response.data.products;
+        const products = response.data.products ?? [];
+        allProducts.push(...products);
 
-        collected.push(...products);
+        if (!response.data.page?.id) break;
 
-        if (products.length < limit) break;
+        pageId = response.data.page.id;
 
-        offset += limit;
+        await sleep(300);
       }
-
-      return collected;
-    }),
-  );
-
-  const results = await Promise.all(requests);
-  const allProducts = results.flat();
+    }
+  }
 
   const uniqueProducts = Array.from(
     new Map(allProducts.map((p) => [p.id, p])).values(),
   );
 
-  const productsWithPrice = uniqueProducts.map((product: any) => ({
+  const productsWithExtras = uniqueProducts.map((product: any) => ({
     ...product,
     price: Math.floor(Math.random() * 4000) + 1000,
+    stock: Math.floor(Math.random() * 50) + 1,
+    createdAt: formatDateForMySQL(randomDate(new Date(2022, 0, 1), new Date())),
   }));
 
-  await saveProducts(productsWithPrice);
-  console.log("Zapisano:", productsWithPrice.length);
+  await saveProducts(productsWithExtras);
+  console.log("Zapisano:", productsWithExtras.length);
 };
 
 export const getProducts = async () => {
@@ -226,3 +276,5 @@ export const getProducts = async () => {
 
   return rows;
 };
+
+fetchComputerOffers();

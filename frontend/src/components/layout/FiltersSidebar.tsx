@@ -26,10 +26,6 @@ const FiltersSidebar = ({
   const [inStock, setInStock] = useState(searchParams.get("stock") === "1");
   const [rating, setRating] = useState(searchParams.get("rating") || "");
 
-  useEffect(() => {
-    updateURL();
-  }, [selectedCategories, selectedBrands, min, max, inStock, rating]);
-
   const updateURL = () => {
     const params = new URLSearchParams(searchParams);
 
@@ -71,7 +67,6 @@ const FiltersSidebar = ({
     <aside className="w-64 bg-white p-5 shadow h-max space-y-6">
       <h2 className="text-lg font-bold">Filtry</h2>
 
-      {/* Kategorie */}
       <div>
         <h3 className="font-semibold mb-2">Kategorie</h3>
         <div className="space-y-1">
@@ -90,7 +85,6 @@ const FiltersSidebar = ({
         </div>
       </div>
 
-      {/* Cena */}
       <div>
         <h3 className="font-semibold mb-2">Cena</h3>
         <div className="flex gap-2">
@@ -111,7 +105,6 @@ const FiltersSidebar = ({
         </div>
       </div>
 
-      {/* Marki */}
       <div>
         <h3 className="font-semibold mb-2">Marka</h3>
         <div className="space-y-1">
@@ -130,7 +123,6 @@ const FiltersSidebar = ({
         </div>
       </div>
 
-      {/* Dostępność */}
       <div>
         <h3 className="font-semibold mb-2">Dostępność</h3>
         <label className="flex items-center gap-2">
@@ -143,7 +135,6 @@ const FiltersSidebar = ({
         </label>
       </div>
 
-      {/* Ocena */}
       <div>
         <h3 className="font-semibold mb-2">Ocena</h3>
         <select
@@ -158,7 +149,12 @@ const FiltersSidebar = ({
         </select>
       </div>
 
-      {/* Reset */}
+      <button
+        onClick={updateURL}
+        className="w-full bg-gray-100 hover:bg-red-100 hover:text-red-500 transition py-2 rounded"
+      >
+        Wyszukuj
+      </button>
       <button
         onClick={resetFilters}
         className="w-full bg-gray-100 hover:bg-red-100 hover:text-red-500 transition py-2 rounded"
