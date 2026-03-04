@@ -8,16 +8,13 @@ import FiltersSidebar from "../../components/layout/FiltersSidebar";
 
 const OffersList = () => {
   const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true); // <- stan ładowania
   const [searchParams] = useSearchParams();
   const [sort, setSort] = useState(searchParams.get("sort") || "");
 
   const allParams = Object.fromEntries(searchParams.entries());
-
   const { page, search, ...filters } = allParams;
-
   const location = useLocation();
-
-  const { state } = location;
 
   const currentPage = Number(page || 1);
   const itemsPerPage = 10;
@@ -29,6 +26,7 @@ const OffersList = () => {
   );
 
   const fetchOffers = useCallback(async () => {
+    setLoading(true);
     try {
       const params = new URLSearchParams(filtersMemo);
       if (search) params.set("search", search);
@@ -39,6 +37,8 @@ const OffersList = () => {
       setProducts(response.data);
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   }, [filtersMemo, search, sort]);
 
@@ -47,13 +47,12 @@ const OffersList = () => {
   }, [fetchOffers]);
 
   const totalPages = Math.ceil(products.length / itemsPerPage);
-
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-
   const currentProducts = products.slice(startIndex, endIndex);
 
   sort ? searchParams.set("sort", sort) : searchParams.delete("sort");
+
   return (
     <>
       <Navbar />
@@ -88,10 +87,69 @@ const OffersList = () => {
           ]}
           brands={["Samsung", "Asus", "MSI", "HP"]}
         />
-        <div className="p-6 max-w-6xl mx-auto space-y-4">
-          {currentProducts.length > 0 ? (
+
+        <div className="w-full flex flex-col gap-6">
+          {loading ? (
             <>
-              {" "}
+              <div className="flex flex-col items-end mb-4">
+                <div className="w-full">
+                  {searchParams.get("search") && (
+                    <h1 className="text-gray-600 mb-2">
+                      Wyniki wyszukiwania dla frazy:{" "}
+                      <span className="font-semibold text-orange-500">
+                        {searchParams.get("search")}
+                      </span>
+                    </h1>
+                  )}
+                </div>
+
+                <h3 className="font-semibold mb-2">Sortuj</h3>
+                <select
+                  disabled
+                  className="w-52 border px-2 py-1 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                >
+                  <option value="">Domyślnie</option>
+                  <option value="price_asc">Cena rosnąco</option>
+                  <option value="price_desc">Cena malejąco</option>
+                  <option value="rating_desc">Najlepsze oceny</option>
+                </select>
+              </div>
+              {[...Array(10)].map((_, i) => (
+                <div
+                  key={i}
+                  className=" bg-white border hover:shadow-lg transition p-4 flex gap-6 items-start"
+                >
+                  <div className="w-40 h-32 bg-gray-300 flex-shrink-0 rounded-md" />
+
+                  {/* Środek z opisem */}
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 bg-gray-300 rounded w-3/4"></div>{" "}
+                    {/* nazwa produktu */}
+                    <div className="h-4 bg-gray-300 rounded w-1/2"></div>{" "}
+                    {/* kategoria */}
+                    <div className="space-y-1 mt-1">
+                      <div className="h-3 bg-gray-300 rounded w-full"></div>
+                      <div className="h-3 bg-gray-300 rounded w-5/6"></div>
+                      <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+                    </div>
+                    <div className="h-4 bg-gray-300 rounded w-2/3 mt-2"></div>{" "}
+                    {/* dodatkowe info */}
+                  </div>
+
+                  {/* Prawa kolumna */}
+                  <div className="flex flex-col items-end gap-3">
+                    <div className="h-6 bg-gray-300 rounded w-16"></div>{" "}
+                    {/* cena */}
+                    <div className="h-10 bg-gray-300 rounded w-32"></div>{" "}
+                    {/* przycisk */}
+                    <div className="h-6 bg-gray-300 rounded w-6"></div>{" "}
+                    {/* serduszko */}
+                  </div>
+                </div>
+              ))}
+            </>
+          ) : currentProducts.length > 0 ? (
+            <>
               <div className="flex flex-col items-end mb-4">
                 <div className="w-full">
                   {searchParams.get("search") && (
@@ -116,6 +174,7 @@ const OffersList = () => {
                   <option value="rating_desc">Najlepsze oceny</option>
                 </select>
               </div>
+
               {currentProducts.map((product: any) => (
                 <OfferCard key={product.id} id={product.id} product={product} />
               ))}

@@ -9,8 +9,6 @@ interface OfferCardProps {
 const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
   const [favorite, setFavorite] = useState(false);
 
-  const slug = product.product_data.name.toLowerCase().replace(/ /g, "-");
-
   const category = product.category_name || "Brak kategorii";
 
   const importantParams = [
@@ -33,9 +31,15 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
     }
   });
 
+  const createSlug = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-");
+
   return (
     <Link
-      to={`/offers/${slug}/${id}`}
+      to={`/offers/${createSlug(product.product_data.name)}/${product.external_id}`}
       className="block bg-white border hover:shadow-lg transition p-4"
     >
       <div className="flex gap-6 items-start">
@@ -48,11 +52,10 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
         </div>
 
         <div className="flex-1">
-          <h3 className="text-lg font-semibold line-clamp-2 hover:text-orange-600 transition">
+          <h3 className="text-lg hover:underline font-semibold line-clamp-2 hover:text-orange-600 transition">
             {product.product_data.name}
           </h3>
 
-         
           <p className="text-sm text-gray-500 mt-1">Kategoria: {category}</p>
 
           <ul className="text-sm text-gray-600 mt-1 space-y-1">

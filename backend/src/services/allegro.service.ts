@@ -377,4 +377,14 @@ export const getProducts = async (params: any) => {
   });
 };
 
-// fetchComputerOffers();
+export const getCurrtentProdcut = async (id: string) => {
+  const [rows] = await connection.query(
+    "SELECT * FROM allegro_products WHERE external_id = ?",
+    [id],
+  );
+  const row = (rows as any[])[0];
+  if (!row) {
+    return null;
+  }
+  return row;
+};
