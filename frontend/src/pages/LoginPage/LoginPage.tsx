@@ -51,10 +51,15 @@ const LoginPage: React.FC = () => {
           sessionStorage.setItem("token", accessToken);
         }
 
+        console.log(response);
         navigate("/");
-      } catch (err) {
-        setError("Błąd logowania");
-        console.log(err);
+      } catch (err: any) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || "Wystąpił błąd");
+        } else {
+          setError("Błąd sieci");
+        }
+        console.log(err.data);
       }
     },
     [email, password, rememberMe, login, navigate],

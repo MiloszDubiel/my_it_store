@@ -30,12 +30,10 @@ export const register = async (req: Request, res: Response) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-
     await connection.query(
       "INSERT INTO users (email, password, first_name, last_name) VALUES (?, ?, ?, ?)",
       [email, hashedPassword, first_name, last_name],
     );
-    log("ZAREJSTROWANo");
     res.json({ message: "Rejestracja zakończona sukcesem" });
   } catch (err: any) {
     log(err);
@@ -59,14 +57,14 @@ export const login = async (req: Request, res: Response) => {
     );
 
     if (rows.length === 0) {
-      return res.status(400).json({ message: "Nieprawidłowy email" });
+      return res.status(400).json({ message: "Nieprawidłowy email lub hasło" });
     }
 
     const user = rows[0] as User;
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Nieprawidłowe hasło" });
+      return res.status(400).json({ message: "Nieprawidłowy email lub hasło" });
     }
 
     const accessExpires = parseInt(process.env.ACCESS_TOKEN_EXPIRES || "900");

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
+import { useCart } from "../../context/CartContext";
 interface OfferCardProps {
   id: string;
   product: any;
@@ -10,6 +10,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
   const [favorite, setFavorite] = useState(false);
 
   const category = product.category_name || "Brak kategorii";
+  const { addToCart, toogleShowCart } = useCart();
 
   const importantParams = [
     "Marka",
@@ -75,7 +76,13 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
         >
           <p className="text-2xl font-bold text-gray-900">{product.price} zł</p>
 
-          <button className="bg-orange-500 text-white px-6 py-2 hover:bg-orange-600 transition font-semibold">
+          <button
+            className="bg-orange-500 text-white px-6 py-2 hover:bg-orange-600 transition font-semibold"
+            onClick={() => {
+              addToCart(product);
+              toogleShowCart(true);
+            }}
+          >
             Dodaj do koszyka
           </button>
 

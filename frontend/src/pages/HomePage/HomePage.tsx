@@ -2,16 +2,18 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Navbar from "../../components/layout/Navbar";
 import { Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 
 const HomePage = () => {
+  const { addToCart, toogleShowCart } = useCart();
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
   const createSlug = (name: string) =>
     name
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-");
-
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
   const fetchOffers = useCallback(async () => {
     try {
@@ -44,7 +46,7 @@ const HomePage = () => {
             [...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col h-[380px] animate-pulse"
+                className="bg-white  shadow-md overflow-hidden flex flex-col h-[380px] animate-pulse"
               >
                 <div className="bg-gray-300 h-48 w-full object-cover" />
                 <div className="p-4 flex flex-col flex-1">
@@ -62,8 +64,7 @@ const HomePage = () => {
                 key={product.id}
                 to={`/offers/${createSlug(product.product_data.name)}/${product.external_id}`}
               >
-                <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition flex flex-col h-[380px]">
-                  {/* Zdjęcie produktu */}
+                <div className="bg-white  shadow-md overflow-hidden hover:shadow-xl transition flex flex-col h-[380px]">
                   <div className="relative flex justify-center">
                     <img
                       src={
@@ -92,7 +93,15 @@ const HomePage = () => {
                       {product.stock} szt. dostępnych
                     </div>
 
-                    <button className="mt-auto w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition">
+                    <button
+                      className="mt-auto w-full bg-orange-500 text-white py-2  hover:bg-orange-600 transition"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        addToCart(product);
+                        toogleShowCart(true);
+                      }}
+                    >
                       Dodaj do koszyka
                     </button>
                   </div>
