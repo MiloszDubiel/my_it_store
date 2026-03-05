@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+import { useFavorite } from "../../context/FavoritesContext";
 import {
   Heart,
   MessageCircle,
@@ -16,6 +17,8 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState<string>("");
 
+  const { favorites, isFavorite } = useFavorite();
+  const [showFavorites, setShowFavorites] = useState(false);
   const {
     cart,
     removeFromCart,
@@ -33,6 +36,15 @@ const Navbar: React.FC = () => {
     logout();
     setIsOpen(false);
   };
+
+  const createSlug = useCallback(
+    (name: string) =>
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-"),
+    [],
+  );
 
   const searchProduct = useCallback(() => {
     const query = search.trim().toLowerCase();
@@ -80,7 +92,71 @@ const Navbar: React.FC = () => {
       </div>
 
       <div className="flex items-center gap-6 text-gray-600 relative ">
-        {<Heart size={22} className="hover:text-orange-600 cursor-pointer" />}
+        <div className="relative">
+          <Heart
+            size={22}
+            className="hover:text-orange-600 cursor-pointer"
+            onClick={() => setShowFavorites(!showFavorites)}
+          />
+
+          {favorites.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-[2px] rounded-full">
+              {favorites.length}
+            </span>
+          )}
+          {showFavorites && (
+            <div className="absolute top-[45px] right-0 mt-3 w-[500px] bg-white border shadow-xl p-4 z-50 overflow-y-auto ax-h-[400px]">
+              <h3 className="text-lg font-bold mb-3">Ulubione produkty</h3>
+              {favorites.length === 0 ? (
+                <p>Nie masz jeszcze ulubionych produktów.</p>
+              ) : (
+                <ul className="flex flex-col gap-3">
+                  {favorites.map((product: any) => {
+                    return (
+                      <li
+                        key={product.id}
+                        className="flex items-center gap-3 border-b pb-2"
+                      >
+                        <div className="w-12 h-12 flex-shrink-0">
+                          <img
+                            src={
+                              product.product_data.images?.[0]?.url ||
+                              "/no-image.png"
+                            }
+                            alt={product.product_data.name}
+                            className="w-full h-full object-cover rounded"
+                          />
+                        </div>
+
+                        <div className="flex-1 flex items-center justify-between w-3/4 ">
+                          <div
+                            className="font-medium text-sm truncate"
+                            style={{ maxWidth: "calc(100% - 60px)" }}
+                            title={product.product_data.name}
+                          >
+                            {product.product_data.name}
+                          </div>
+
+                          <div className="text-gray-500 text-xs flex-shrink-0 ml-2">
+                            {product.price} zł
+                          </div>
+                        </div>
+
+                        <Link
+                          to={`/offers/${createSlug(product.product_data.name)}/${product.external_id}`}
+                          className="text-orange-500 hover:underline text-xs ml-3 flex-shrink-0"
+                          onClick={() => setShowFavorites(false)}
+                        >
+                          Zobacz
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
         {
           <MessageCircle
             size={22}

@@ -1,16 +1,19 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import { useFavorite } from "../../context/FavoritesContext";
+
 interface OfferCardProps {
   id: string;
   product: any;
 }
 
 const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
-  const [favorite, setFavorite] = useState(false);
-
   const category = product.category_name || "Brak kategorii";
   const { addToCart, toogleShowCart } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorite();
+
+  const favorite = isFavorite(product.id as string);
 
   const importantParams = [
     "Marka",
@@ -86,7 +89,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
             Dodaj do koszyka
           </button>
 
-          <button onClick={() => setFavorite(!favorite)} className="transition">
+          <button onClick={() => toggleFavorite(id)} className="transition">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill={favorite ? "#f97316" : "none"}

@@ -145,7 +145,7 @@ export const getValidAllegroToken = async (): Promise<string> => {
 };
 export const saveProducts = async (products: any[]) => {
   const query = `
-    INSERT INTO allegro_products 
+    INSERT INTO products 
     (external_id, price, stock, createdAt, category_id, category_name, brand, model, product_data)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE
@@ -331,7 +331,7 @@ function mapMainCategory(categoryName: string | null) {
 export const getProducts = async (params: any) => {
   const { categories, brands, min, max, stock, search } = params;
 
-  let query = "SELECT * FROM allegro_products WHERE 1=1";
+  let query = "SELECT * FROM products WHERE 1=1";
   const queryParams: any[] = [];
 
   if (categories) {
@@ -379,9 +379,20 @@ export const getProducts = async (params: any) => {
 
 export const getCurrtentProdcut = async (id: string) => {
   const [rows] = await connection.query(
-    "SELECT * FROM allegro_products WHERE external_id = ?",
+    "SELECT * FROM products WHERE external_id = ?",
     [id],
   );
+  const row = (rows as any[])[0];
+  if (!row) {
+    return null;
+  }
+  return row;
+};
+
+export const getCurrtentProdcutByID = async (id: string) => {
+  const [rows] = await connection.query("SELECT * FROM products WHERE id = ?", [
+    id,
+  ]);
   const row = (rows as any[])[0];
   if (!row) {
     return null;

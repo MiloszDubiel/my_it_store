@@ -4,6 +4,7 @@ import express from "express";
 import cors from "cors";
 import allegroRoutes from "./routes/allegro.routes";
 import authRoutes from "./routes/authRoute";
+import favoriteRoutes from "./routes/favorite.routes";
 
 const app = express();
 
@@ -12,8 +13,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/allegro", allegroRoutes);
-
-
+app.use("/api/favorite", favoriteRoutes);
 
 app.listen(5000, () => {
   console.log("Server running on port 5000");

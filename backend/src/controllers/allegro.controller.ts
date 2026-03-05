@@ -4,6 +4,7 @@ import {
   exchangeCodeForToken,
   getProducts,
   getCurrtentProdcut,
+  getCurrtentProdcutByID,
 } from "../services/allegro.service";
 
 export const loginToAllegro = (req: Request, res: Response) => {
@@ -40,11 +41,28 @@ export const getOffersFromDatabase = async (req: Request, res: Response) => {
   }
 };
 
-export const getProductByID = async (req: Request, res: Response) => {
+export const getProductByExternalID = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
     const response = await getCurrtentProdcut(id as string);
+
+    if (!response) {
+      return res.status(400).json({ error: "Brak produktu" });
+    }
+
+    return res.json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getProductByID = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const response = await getCurrtentProdcutByID(id as string);
 
     if (!response) {
       return res.status(400).json({ error: "Brak produktu" });

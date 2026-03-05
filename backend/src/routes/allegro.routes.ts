@@ -4,6 +4,7 @@ import {
   allegroCallback,
   getOffersFromDatabase,
   getProductByID,
+  getProductByExternalID,
 } from "../controllers/allegro.controller";
 
 const router = Router();
@@ -11,5 +12,6 @@ const router = Router();
 router.get("/login", loginToAllegro);
 router.get("/callback", allegroCallback);
 router.get("/products", getOffersFromDatabase);
-router.get("/products/:slug/:id", getProductByID);
+router.get("/products/:slug/:id", getProductByExternalID);
+router.get("/products/:id", getProductByID);
 export default router;
