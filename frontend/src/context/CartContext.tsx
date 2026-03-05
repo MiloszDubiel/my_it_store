@@ -1,19 +1,6 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-} from "react";
-import { useAuth } from "./AuthContext";
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-  product_data: any;
-}
+import { Product } from "../types/ProductType";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -50,23 +37,8 @@ Każdy komponent wewnątrz <CartProvider> będzie miał dostęp do koszyka
 export const CartProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const { isAuthenticated } = useAuth();
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const storedCart = localStorage.getItem("cart");
-
-    if (storedCart) {
-      return JSON.parse(storedCart);
-    }
-
-    return [];
-  });
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [showCard, setShowCard] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      localStorage.setItem("cart", JSON.stringify(cart));
-    }
-  }, [cart, isAuthenticated]);
 
   const addToCart = (product: Product, quantity: number = 1) => {
     /*setCart(prev => {
@@ -89,13 +61,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const removeFromCart = (productId: string) => {
-    setCart((prev: CartItem[]) => prev.filter((item) => item.id !== productId));
+    setCart((prev: CartItem[]) =>
+      prev.filter((item: Product) => item.id !== productId),
+    );
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.id === productId ? { ...item, quantity } : item,
+    setCart((prev: CartItem[]) =>
+      prev.map((item: CartItem) =>
+        item.id !== productId ? { ...item, quantity } : item,
       ),
     );
   };

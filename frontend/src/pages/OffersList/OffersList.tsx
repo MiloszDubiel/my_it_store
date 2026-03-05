@@ -1,14 +1,13 @@
 import Navbar from "../../components/layout/Navbar";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useMemo, useState } from "react";
 import axios from "axios";
 import OfferCard from "../../components/ui/OffersCard";
 import Pagination from "../../components/ui/Pagination";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import FiltersSidebar from "../../components/layout/FiltersSidebar";
+import { useQuery } from "@tanstack/react-query"; // hook React Query
 
 const OffersList = () => {
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const [sort, setSort] = useState(searchParams.get("sort") || "");
 
@@ -17,64 +16,80 @@ const OffersList = () => {
 
   const currentPage = Number(page || 1);
   const itemsPerPage = 10;
+
   const navigate = useNavigate();
+
+  const fetchProducts = async () => {
+    const params = new URLSearchParams(filters);
+
+    if (search) params.set("search", search);
+    if (sort) params.set("sort", sort);
+    if (currentPage) params.set("page", currentPage.toString());
+
+    const res = await axios.get(
+      `http://localhost:5000/allegro/products?${params.toString()}`,
+    );
+
+    return res.data;
+  };
+
+  // =========================
+  // REACT QUERY
+  // =========================
+  const { data: products = [], isLoading } = useQuery({
+    // queryKey = unikalny klucz cache
+    // kiedy zmieni się którykolwiek element
+    // React Query zrobi refetch
+    queryKey: ["products", filters, search, sort, currentPage],
+
+    // funkcja która pobiera dane
+    queryFn: fetchProducts,
+
+    // czas cache (opcjonalne)
+    staleTime: 1000 * 60 * 5, // 5 minut
+  });
 
   const sortedProducts = useMemo(() => {
     return [...products].sort((a, b) => {
       switch (sort) {
         case "price_asc":
           return a.price - b.price;
+
         case "price_desc":
           return b.price - a.price;
+
         case "rating_desc":
           return b.rating - a.rating;
+
         default:
           return 0;
       }
     });
   }, [products, sort]);
 
-  useEffect(() => {
-    const fetchOffers = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams(filters);
-        if (search) params.set("search", search);
-        if (sort) params.set("sort", sort);
-        if (currentPage) params.set("page", currentPage.toString());
-        const response = await axios.get(
-          `http://localhost:5000/allegro/products?${params.toString()}`,
-        );
-        setProducts(response.data);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOffers();
-  }, [JSON.stringify(filters), search, sort, currentPage]);
-
   const totalPages = Math.ceil(sortedProducts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentProducts = sortedProducts.slice(startIndex, endIndex);
 
-  sort ? searchParams.set("sort", sort) : searchParams.delete("sort");
-
   const handleSortChange = (value: string) => {
     const params = new URLSearchParams(searchParams);
+
     if (value) {
       params.set("sort", value);
     } else {
       params.delete("sort");
     }
+
     setSearchParams(params);
+
     setSort(value);
   };
+
   return (
     <>
       <Navbar />
+
       <div className="flex gap-6 max-w-7xl mx-auto p-6">
         <FiltersSidebar
           categories={[
@@ -84,30 +99,12 @@ const OffersList = () => {
             "Płyty główne",
             "Procesory",
             "Pozostałe",
-            "Pasty i taśmy termoprzewodzące",
-            "Panele i czytniki",
-            "Pamięć RAM",
-            "Ogniwa peltiera",
-            "Obudowy",
-            "Napędy",
-            "Laptopy",
-            "Kontrolery komputerowe",
-            "Konektory i kable antenowe",
-            "Komputery stacjonarne",
-            "Karty graficzne",
-            "Karty diagnostyczne",
-            "Dyski SSD",
-            "Dyski HDD",
-            "Części",
-            "Chłodzenie procesorów",
-            "Chłodzenie kart graficznych",
-            "Chłodnice",
           ]}
           brands={["Samsung", "Asus", "MSI", "HP"]}
         />
 
         <div className="w-full flex flex-col gap-6">
-          {loading ? (
+          {isLoading ? (
             <>
               <div className="flex flex-col items-end mb-4">
                 <div className="w-full">
@@ -161,22 +158,21 @@ const OffersList = () => {
           ) : sortedProducts.length > 0 ? (
             <>
               <div className="flex flex-col items-end mb-4">
-                <div className="w-full">
-                  {searchParams.get("search") && (
-                    <h1 className="text-gray-600 mb-2">
-                      Wyniki wyszukiwania dla frazy:{" "}
-                      <span className="font-semibold text-orange-500">
-                        {searchParams.get("search")}
-                      </span>
-                    </h1>
-                  )}
-                </div>
+                {search && (
+                  <h1 className="text-gray-600 mb-2">
+                    Wyniki dla:{" "}
+                    <span className="font-semibold text-orange-500">
+                      {search}
+                    </span>
+                  </h1>
+                )}
 
                 <h3 className="font-semibold mb-2">Sortuj</h3>
+
                 <select
                   value={sort}
                   onChange={(e) => handleSortChange(e.target.value)}
-                  className="w-52 border px-2 py-1 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                  className="w-52 border px-2 py-1"
                 >
                   <option value="">Domyślnie</option>
                   <option value="price_asc">Cena rosnąco</option>
@@ -186,7 +182,7 @@ const OffersList = () => {
               </div>
 
               {currentProducts.map((product: any) => (
-                <OfferCard key={product} id={product.id} product={product} />
+                <OfferCard key={product.id} id={product.id} product={product} />
               ))}
             </>
           ) : (
@@ -198,7 +194,9 @@ const OffersList = () => {
             currentPage={currentPage}
             onPageChange={(page) => {
               const params = new URLSearchParams(searchParams);
+
               params.set("page", page.toString());
+
               navigate(`?${params.toString()}`);
             }}
           />

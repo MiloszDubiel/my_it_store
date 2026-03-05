@@ -9,12 +9,12 @@ import { AuthProvider } from "./context/AuthContext";
 import "./index.css";
 import OfferDetails from "./components/ui/OfertDetails";
 import { CartProvider } from "./context/CartContext";
-import { FavortiteProvider } from "./context/FavoritesContext";
+import { FavoriteProvider } from "./context/FavoritesContext";
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <FavortiteProvider>
+      <FavoriteProvider>
         <CartProvider>
           <BrowserRouter>
             <div className="flex flex-col min-h-screen">
@@ -33,7 +33,7 @@ const App: React.FC = () => {
             </div>
           </BrowserRouter>
         </CartProvider>
-      </FavortiteProvider>
+      </FavoriteProvider>
     </AuthProvider>
   );
 };

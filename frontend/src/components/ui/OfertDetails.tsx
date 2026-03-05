@@ -1,33 +1,31 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import Navbar from "../../components/layout/Navbar";
+import { useQuery } from "@tanstack/react-query";
 
 const OfferDetails = () => {
   const { slug, id } = useParams();
-
-  const [product, setProduct] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
 
-  useEffect(() => {
-    const fetchOffer = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:5000/allegro/products/${slug}/${id}`,
-        );
-        setProduct(response.data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchOffer = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/allegro/products/${slug}/${id}`,
+      );
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-    fetchOffer();
-  }, [id, slug]);
+  const { data: product = [], isLoading } = useQuery({
+    queryKey: ["product", id, slug],
+    queryFn: fetchOffer,
+    staleTime: 1000 * 5 * 60,
+  });
 
-  if (loading)
+  if (isLoading)
     return (
       <>
         <Navbar />
@@ -101,7 +99,6 @@ const OfferDetails = () => {
               {product?.stock ? "Dodaj do koszyka" : "Brak w magazynie"}
             </button>
 
-      
             {productData?.parameters?.length > 0 && (
               <div className="mt-10">
                 <h2 className="text-xl font-semibold mb-4">Specyfikacja</h2>

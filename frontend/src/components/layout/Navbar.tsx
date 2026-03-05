@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useCart } from "../../context/CartContext";
+import { CartItem, useCart } from "../../context/CartContext";
 import { useFavorite } from "../../context/FavoritesContext";
+import { Product } from "../../types/ProductType";
 import {
   Heart,
   MessageCircle,
@@ -17,7 +18,7 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState<string>("");
 
-  const { favorites, isFavorite } = useFavorite();
+  const { favorites } = useFavorite();
   const [showFavorites, setShowFavorites] = useState(false);
   const {
     cart,
@@ -111,7 +112,7 @@ const Navbar: React.FC = () => {
                 <p>Nie masz jeszcze ulubionych produktów.</p>
               ) : (
                 <ul className="flex flex-col gap-3">
-                  {favorites.map((product: any) => {
+                  {favorites.map((product: Product) => {
                     return (
                       <li
                         key={product.id}
@@ -187,7 +188,7 @@ const Navbar: React.FC = () => {
             ) : (
               <>
                 <ul className="max-h-[260px] overflow-y-auto pr-2">
-                  {cart.map((item) => (
+                  {cart.map((item: CartItem) => (
                     <li key={item.id} className="flex gap-3 mb-3 border-b pb-3">
                       <div className="w-16 h-16 flex-shrink-0">
                         <img

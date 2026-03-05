@@ -60,15 +60,12 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-        },
-      );
+      await axios.post("http://localhost:5000/api/auth/register", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      });
 
       setSuccess("Rejestracja zakończona sukcesem!");
       setFormData({
@@ -78,8 +75,6 @@ const RegisterPage: React.FC = () => {
         confirmPassword: "",
         role: "user",
       });
-
-      console.log(response.data);
     } catch (error: any) {
       setError(error.response?.data?.message || "Błąd rejestracji.");
     }

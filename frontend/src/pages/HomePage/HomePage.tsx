@@ -1,13 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "../../components/layout/Navbar";
 import { Link } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
 
 const HomePage = () => {
   const { addToCart, toogleShowCart } = useCart();
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
 
   const createSlug = (name: string) =>
     name
@@ -15,22 +13,22 @@ const HomePage = () => {
       .replace(/[^a-z0-9\s-]/g, "")
       .replace(/\s+/g, "-");
 
-  const fetchOffers = useCallback(async () => {
+  const fetchOffers = async () => {
     try {
       const response = await axios.get(
         "http://localhost:5000/allegro/products",
       );
-      setProducts(response.data.slice(0, 4));
+      return response.data.slice(0, 4);
     } catch (err) {
       console.error(err);
-    } finally {
-      setLoading(false);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    fetchOffers();
-  }, [fetchOffers]);
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ["products-main-page"],
+    queryFn: fetchOffers,
+    staleTime: 5 * 60 * 1000,
+  });
 
   return (
     <>
@@ -42,7 +40,7 @@ const HomePage = () => {
 
       <main className="flex-1 container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {loading &&
+          {isLoading &&
             [...Array(4)].map((_, i) => (
               <div
                 key={i}
@@ -58,8 +56,8 @@ const HomePage = () => {
               </div>
             ))}
 
-          {!loading &&
-            products.map((product) => (
+          {!isLoading &&
+            products.map((product: any) => (
               <Link
                 key={product.id}
                 to={`/offers/${createSlug(product.product_data.name)}/${product.external_id}`}
