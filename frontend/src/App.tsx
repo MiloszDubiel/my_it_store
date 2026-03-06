@@ -6,7 +6,7 @@ import LoginPage from "./pages/LoginPage/LoginPage";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import Footer from "./components/layout/Footer";
 import { AuthProvider } from "./context/AuthContext";
-import "./index.css";
+
 import OfferDetails from "./components/ui/OfertDetails";
 import { CartProvider } from "./context/CartContext";
 import { FavoriteProvider } from "./context/FavoritesContext";

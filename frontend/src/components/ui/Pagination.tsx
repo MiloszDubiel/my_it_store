@@ -1,6 +1,5 @@
 import React from "react";
 
-
 interface PaginationProps {
   totalPages: number;
   currentPage: number;
@@ -19,7 +18,7 @@ const Pagination: React.FC<PaginationProps> = ({
       <button
         disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
-        className="px-3 py-1 rounded border disabled:opacity-40 hover:bg-orange-100"
+        className="px-3 py-1 rounded border disabled:opacity-40 hover:bg-orange-100 border-gray-200 cursor-pointer"
       >
         ←
       </button>
@@ -36,11 +35,11 @@ const Pagination: React.FC<PaginationProps> = ({
           return (
             <div key={page} className="flex items-center">
               {prevPage && page - prevPage > 1 && (
-                <span className="px-2">...</span>
+                <span className="px-2 ">...</span>
               )}
               <button
                 onClick={() => onPageChange(page)}
-                className={`px-3 py-1 rounded border transition ${
+                className={`px-3 py-1 rounded border transition border-gray-200 cursor-pointer ${
                   currentPage === page
                     ? "bg-orange-500 text-white border-orange-500"
                     : "hover:bg-orange-100"
@@ -55,7 +54,7 @@ const Pagination: React.FC<PaginationProps> = ({
       <button
         disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
-        className="px-3 py-1 rounded border disabled:opacity-40 hover:bg-orange-100"
+        className="px-3 py-1 rounded border disabled:opacity-40 hover:bg-orange-100 border-gray-200 cursor-pointer"
       >
         →
       </button>

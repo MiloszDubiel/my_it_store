@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { CartItem, useCart } from "../../context/CartContext";
+import { useCart } from "../../context/CartContext";
+import type { CartItem } from "../../context/CartContext";
 import { useFavorite } from "../../context/FavoritesContext";
-import { Product } from "../../types/ProductType";
+import type { Product } from "../../types/ProductType";
 import {
   Heart,
   MessageCircle,
@@ -61,12 +62,12 @@ const Navbar: React.FC = () => {
       </Link>
 
       <div className="flex items-center gap-6 flex-1 mx-6">
-        <div className="flex items-center border overflow-hidden focus-within:ring-2 focus-within:ring-orange-100 w-1/3">
+        <div className="flex items-center border overflow-hidden focus-within:ring-2 focus-within:ring-orange-100 w-1/3 border-gray-200">
           <div className="relative flex-1">
             <input
               type="text"
               placeholder="Szukaj produktów..."
-              className="w-full pl-10 pr-4 py-2 outline-none"
+              className="w-full pl-10 pr-4 py-2 outline-0 "
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -101,12 +102,12 @@ const Navbar: React.FC = () => {
           />
 
           {favorites.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-[2px] rounded-full">
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
               {favorites.length}
             </span>
           )}
           {showFavorites && (
-            <div className="absolute top-[45px] right-0 mt-3 w-[500px] bg-white border shadow-xl p-4 z-50 overflow-y-auto ax-h-[400px]">
+            <div className="absolute top-11.25 right-0 mt-3 w-125 bg-white border shadow-xl p-4 z-50 overflow-y-auto ax-h-[400px] border-gray-200">
               <h3 className="text-lg font-bold mb-3">Ulubione produkty</h3>
               {favorites.length === 0 ? (
                 <p>Nie masz jeszcze ulubionych produktów.</p>
@@ -118,7 +119,7 @@ const Navbar: React.FC = () => {
                         key={product.id}
                         className="flex items-center gap-3 border-b pb-2"
                       >
-                        <div className="w-12 h-12 flex-shrink-0">
+                        <div className="w-12 h-12 shrink-0">
                           <img
                             src={
                               product.product_data.images?.[0]?.url ||
@@ -138,14 +139,14 @@ const Navbar: React.FC = () => {
                             {product.product_data.name}
                           </div>
 
-                          <div className="text-gray-500 text-xs flex-shrink-0 ml-2">
+                          <div className="text-gray-500 text-xs shrink-0 ml-2">
                             {product.price} zł
                           </div>
                         </div>
 
                         <Link
                           to={`/offers/${createSlug(product.product_data.name)}/${product.external_id}`}
-                          className="text-orange-500 hover:underline text-xs ml-3 flex-shrink-0"
+                          className="text-orange-500 hover:underline text-xs ml-3 shrink-0"
                           onClick={() => setShowFavorites(false)}
                         >
                           Zobacz
@@ -174,23 +175,23 @@ const Navbar: React.FC = () => {
           />
 
           {totalItems > 0 && (
-            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-[2px] rounded-full">
+            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">
               {totalItems}
             </span>
           )}
         </div>
 
         {showCard && (
-          <div className="absolute top-[45px] right-0 mt-3 w-[500px] bg-white border shadow-xl p-4 z-50  overflow-y-auto">
+          <div className="absolute top-11.25 right-0 mt-3 w-125 bg-white border shadow-xl p-4 z-50  overflow-y-auto border-gray-200">
             <h2 className="text-xl font-bold mb-4">Twój koszyk</h2>
             {cart.length === 0 ? (
               <p>Twój koszyk jest pusty.</p>
             ) : (
               <>
-                <ul className="max-h-[260px] overflow-y-auto pr-2">
+                <ul className="max-h-65 overflow-y-auto pr-2">
                   {cart.map((item: CartItem) => (
                     <li key={item.id} className="flex gap-3 mb-3 border-b pb-3">
-                      <div className="w-16 h-16 flex-shrink-0">
+                      <div className="w-16 h-16 shrink-0">
                         <img
                           src={
                             item.product_data.images?.[0]?.url ||
@@ -209,7 +210,7 @@ const Navbar: React.FC = () => {
                         <div className="flex items-center gap-2 mt-1">
                           <input
                             type="number"
-                            className="w-14 border px-1 py-[2px]"
+                            className="w-14 border px-1 py-0.5"
                             value={item.quantity}
                             min={1}
                             max={item.stock}
@@ -267,7 +268,7 @@ const Navbar: React.FC = () => {
             )}
           </div>
         )}
-        <div className="relative">
+        <div className="relative cursor-pointer">
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center gap-2 hover:text-orange-600 transition"
@@ -279,7 +280,7 @@ const Navbar: React.FC = () => {
           </button>
 
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white border shadow-lg  py-2 z-50">
+            <div className="absolute right-0 mt-2 w-56 bg-white border-gray-400 shadow-lg  py-2 z-50 ">
               {!isAuthenticated ? (
                 <>
                   <Link

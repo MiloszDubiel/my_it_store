@@ -26,9 +26,7 @@ const OffersList = () => {
     if (sort) params.set("sort", sort);
     if (currentPage) params.set("page", currentPage.toString());
 
-    const res = await axios.get(
-      `http://localhost:5000/allegro/products?${params.toString()}`,
-    );
+    const res = await axios.get(`/api/products/products?${params.toString()}`);
 
     return res.data;
   };
@@ -82,7 +80,6 @@ const OffersList = () => {
     }
 
     setSearchParams(params);
-
     setSort(value);
   };
 
@@ -121,7 +118,7 @@ const OffersList = () => {
                 <h3 className="font-semibold mb-2">Sortuj</h3>
                 <select
                   disabled
-                  className="w-52 border px-2 py-1 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                  className="w-52 border px-2 py-1 focus:border-orange-500 focus:ring focus:ring-orange-200 border-gray-200"
                 >
                   <option value="">Domyślnie</option>
                   <option value="price_asc">Cena rosnąco</option>
@@ -132,9 +129,9 @@ const OffersList = () => {
               {[...Array(10)].map((_, i) => (
                 <div
                   key={i}
-                  className=" bg-white border hover:shadow-lg transition p-4 flex gap-6 items-start"
+                  className=" bg-white border hover:shadow-lg transition p-4 flex gap-6 items-start border-gray-200"
                 >
-                  <div className="w-40 h-32 bg-gray-300 flex-shrink-0 rounded-md" />
+                  <div className="w-40 h-32 bg-gray-300 shrink-0 rounded-md" />
 
                   <div className="flex-1 space-y-2">
                     <div className="h-5 bg-gray-300 rounded w-3/4"></div>{" "}
@@ -157,7 +154,7 @@ const OffersList = () => {
             </>
           ) : sortedProducts.length > 0 ? (
             <>
-              <div className="flex flex-col items-end mb-4">
+              <div className="flex flex-col items-end mb-4 border-gray-200">
                 {search && (
                   <h1 className="text-gray-600 mb-2">
                     Wyniki dla:{" "}
@@ -172,7 +169,7 @@ const OffersList = () => {
                 <select
                   value={sort}
                   onChange={(e) => handleSortChange(e.target.value)}
-                  className="w-52 border px-2 py-1"
+                  className="w-52 border px-2 py-1 border-gray-200"
                 >
                   <option value="">Domyślnie</option>
                   <option value="price_asc">Cena rosnąco</option>

@@ -5,7 +5,7 @@ import {
   getOffersFromDatabase,
   getProductByID,
   getProductByExternalID,
-} from "../controllers/allegro.controller";
+} from "../controllers/prodcuts.controller";
 
 const router = Router();
 

@@ -15,9 +15,7 @@ const HomePage = () => {
 
   const fetchOffers = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5000/allegro/products",
-      );
+      const response = await axios.get("/api/products/products");
       return response.data.slice(0, 4);
     } catch (err) {
       console.error(err);
@@ -44,7 +42,7 @@ const HomePage = () => {
             [...Array(4)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white  shadow-md overflow-hidden flex flex-col h-[380px] animate-pulse"
+                className="bg-white  shadow-md overflow-hidden flex flex-col h-95 animate-pulse"
               >
                 <div className="bg-gray-300 h-48 w-full object-cover" />
                 <div className="p-4 flex flex-col flex-1">
@@ -62,7 +60,7 @@ const HomePage = () => {
                 key={product.id}
                 to={`/offers/${createSlug(product.product_data.name)}/${product.external_id}`}
               >
-                <div className="bg-white  shadow-md overflow-hidden hover:shadow-xl transition flex flex-col h-[380px]">
+                <div className="bg-white  shadow-md overflow-hidden hover:shadow-xl transition flex flex-col h-95">
                   <div className="relative flex justify-center">
                     <img
                       src={
@@ -77,7 +75,7 @@ const HomePage = () => {
                   </div>
 
                   <div className="p-4 flex flex-col flex-1">
-                    <h3 className="font-semibold text-lg mb-2 line-clamp-2 min-h-[56px] hover:underline hover:text-orange-600">
+                    <h3 className="font-semibold text-lg mb-2 line-clamp-2 min-h-14 hover:underline hover:text-orange-600">
                       {product.product_data.name}
                     </h3>
 

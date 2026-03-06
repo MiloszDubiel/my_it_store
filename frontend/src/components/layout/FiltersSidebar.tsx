@@ -115,14 +115,14 @@ const FiltersSidebar = ({
             placeholder="Od"
             value={min}
             onChange={(e) => setMin(e.target.value)}
-            className="w-full border rounded px-2 py-1"
+            className="w-full border rounded px-2 py-1 border-gray-200"
           />
           <input
             type="number"
             placeholder="Do"
             value={max}
             onChange={(e) => setMax(e.target.value)}
-            className="w-full border rounded px-2 py-1"
+            className="w-full border rounded px-2 py-1 border-gray-200"
           />
         </div>
       </div>
@@ -164,12 +164,12 @@ const FiltersSidebar = ({
         <select
           value={rating}
           onChange={(e) => setRating(e.target.value)}
-          className="w-full border rounded px-2 py-1"
+          className="w-full border rounded px-2 py-1 border-gray-200"
         >
           <option value="">Dowolna</option>
-          <option value="4">4★ i więcej</option>
-          <option value="3">3★ i więcej</option>
-          <option value="2">2★ i więcej</option>
+          <option value="4">4 i więcej</option>
+          <option value="3">3 i więcej</option>
+          <option value="2">2 i więcej</option>
         </select>
       </div>
 
@@ -180,7 +180,6 @@ const FiltersSidebar = ({
         Wyszukaj
       </button>
 
-      {/* Przycisk Resetuj */}
       <button
         onClick={resetFilters}
         className="w-full bg-gray-100 hover:bg-orange-100 hover:text-orange-500 transition py-2 rounded"

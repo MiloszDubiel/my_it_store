@@ -33,7 +33,7 @@ export const FavoriteProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const fetchFavorites = async () => {
     const res = await axios.get(
-      `http://localhost:5000/api/favorite/${user!.id}`,
+      `/api/favorite/${user!.id}`,
     );
 
     return res.data;
@@ -68,7 +68,7 @@ export const FavoriteProvider: React.FC<{ children: React.ReactNode }> = ({
     //mutationFn → funkcja która wykona request do backendu
     mutationFn: async (productId: string) => {
       return axios.post(
-        `http://localhost:5000/api/favorite/toggle/${productId}`,
+        `api/favorite/toggle/${productId}`,
         {
           userId: user!.id,
         },

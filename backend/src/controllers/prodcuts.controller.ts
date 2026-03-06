@@ -5,7 +5,7 @@ import {
   getProducts,
   getCurrtentProdcut,
   getCurrtentProdcutByID,
-} from "../services/allegro.service";
+} from "../services/prodcuts.service";
 
 export const loginToAllegro = (req: Request, res: Response) => {
   const url = getAuthorizationUrl();

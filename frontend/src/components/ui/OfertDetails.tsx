@@ -10,9 +10,7 @@ const OfferDetails = () => {
 
   const fetchOffer = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/allegro/products/${slug}/${id}`,
-      );
+      const response = await axios.get(`/api/products/products/${slug}/${id}`);
       return response.data;
     } catch (error) {
       console.error(error);
@@ -57,7 +55,7 @@ const OfferDetails = () => {
             <img
               src={productData?.images?.[selectedImage]?.url || "/no-image.png"}
               alt={productData?.name}
-              className="h-[550px] rounded-xl shadow-lg object-cover mb-4"
+              className="h-137.5 rounded-xl shadow-lg object-cover mb-4"
             />
 
             {productData?.images?.length > 1 && (

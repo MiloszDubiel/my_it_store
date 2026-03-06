@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState } from "react";
 
-import { Product } from "../types/ProductType";
+import type { Product } from "../types/ProductType";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -34,7 +34,7 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 Każdy komponent wewnątrz <CartProvider> będzie miał dostęp do koszyka
 
 */
-export const CartProvider: React.FC<{ children: ReactNode }> = ({
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [cart, setCart] = useState<CartItem[]>([]);

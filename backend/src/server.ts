@@ -1,19 +1,20 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import cors from "cors";
-import allegroRoutes from "./routes/allegro.routes";
+import productsRoutes from "./routes/products.routes";
 import authRoutes from "./routes/authRoute";
 import favoriteRoutes from "./routes/favorite.routes";
+import path from "node:path";
 
 const app = express();
 
-app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-app.use("/allegro", allegroRoutes);
+app.use("/api/products", productsRoutes);
 app.use("/api/favorite", favoriteRoutes);
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 app.listen(5000, () => {
   console.log("Server running on port 5000");
