@@ -146,13 +146,12 @@ export const getValidAllegroToken = async (): Promise<string> => {
 export const saveProducts = async (products: any[]) => {
   const query = `
     INSERT INTO products 
-    (external_id, price, stock, createdAt, category_id, category_name, brand, model, product_data)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (external_id, price, stock, createdAt, category_name, brand, model, product_data)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE
       price = VALUES(price),
       stock = VALUES(stock),
       createdAt = VALUES(createdAt),
-      category_id = VALUES(category_id),
       category_name = VALUES(category_name),
       brand = VALUES(brand),
       model = VALUES(model),
@@ -163,7 +162,6 @@ export const saveProducts = async (products: any[]) => {
     const path = product.category?.path || [];
     const lastCategory = path.length ? path[path.length - 1] : null;
 
-    const categoryId = lastCategory?.id || null;
     const categoryName = lastCategory?.name || null;
 
     const brandParam = product.parameters?.find(
@@ -178,14 +176,11 @@ export const saveProducts = async (products: any[]) => {
     const model =
       modelParam?.valuesLabels?.[0] || modelParam?.values?.[0] || null;
 
-    console.log({ categoryId, categoryName, brand, model });
-
     await connection.query(query, [
       product.id,
       product.price,
       product.stock,
       product.createdAt,
-      categoryId,
       categoryName,
       brand,
       model,
@@ -399,3 +394,4 @@ export const getCurrtentProdcutByID = async (id: string) => {
   }
   return row;
 };
+fetchComputerOffers();
