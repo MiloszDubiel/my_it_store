@@ -58,7 +58,7 @@ const HomePage = () => {
             products.map((product: any) => (
               <Link
                 key={product.id}
-                to={`/offers/${createSlug(product.product_data.name)}/${product.external_id}`}
+                to={`/offers/${createSlug(product.product_data.name)}/${product.id}`}
               >
                 <div className="bg-white  shadow-md overflow-hidden hover:shadow-xl transition flex flex-col h-95">
                   <div className="relative flex justify-center">

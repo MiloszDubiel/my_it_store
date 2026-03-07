@@ -374,7 +374,7 @@ export const getProducts = async (params: any) => {
 
 export const getCurrtentProdcut = async (id: string) => {
   const [rows] = await connection.query(
-    "SELECT * FROM products WHERE external_id = ?",
+    "SELECT * FROM products WHERE id = ?",
     [id],
   );
   const row = (rows as any[])[0];

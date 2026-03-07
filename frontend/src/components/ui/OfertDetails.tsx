@@ -1,13 +1,17 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 import Navbar from "../../components/layout/Navbar";
+import ReviewsList from "../layout/ReviewList";
+import AddReview from "./AddReview";
 import { useQuery } from "@tanstack/react-query";
 
 const OfferDetails = () => {
   const { slug, id } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
 
+  const { user } = useAuth();
   const fetchOffer = async () => {
     try {
       const response = await axios.get(`/api/products/products/${slug}/${id}`);
@@ -130,6 +134,17 @@ const OfferDetails = () => {
             </p>
           </div>
         )}
+        <div className="mt-20">
+          <h2 className="text-2xl font-semibold mb-6">Opinie klientów</h2>
+
+          <ReviewsList productId={id as string} />
+
+          {user && user.role === "USER" && (
+            <div className="mt-10">
+              <AddReview productId={id as string} />
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

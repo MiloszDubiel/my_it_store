@@ -45,7 +45,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
 
   return (
     <Link
-      to={`/offers/${createSlug(product.product_data.name)}/${product.external_id}`}
+      to={`/offers/${createSlug(product.product_data.name)}/${product.id}`}
       className="block bg-white border hover:shadow-lg transition p-4 border-gray-200"
     >
       <div className="flex gap-6 items-start">
