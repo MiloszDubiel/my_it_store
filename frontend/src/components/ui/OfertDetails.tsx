@@ -10,6 +10,8 @@ import { useQuery } from "@tanstack/react-query";
 const OfferDetails = () => {
   const { slug, id } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showAllParams, setShowAllParams] = useState(false);
+  const [showParamsDrawer, setShowParamsDrawer] = useState(false);
 
   const { user } = useAuth();
   const fetchOffer = async () => {
@@ -48,6 +50,9 @@ const OfferDetails = () => {
     );
 
   const productData = product.product_data;
+  const parameters = productData?.parameters || [];
+
+  const visibleParameters = showAllParams ? parameters : parameters.slice(0, 5);
 
   return (
     <>
@@ -59,7 +64,7 @@ const OfferDetails = () => {
             <img
               src={productData?.images?.[selectedImage]?.url || "/no-image.png"}
               alt={productData?.name}
-              className="h-137.5 rounded-xl shadow-lg object-cover mb-4"
+              className="h-137.5  shadow-lg object-cover mb-4"
             />
 
             {productData?.images?.length > 1 && (
@@ -70,7 +75,7 @@ const OfferDetails = () => {
                     src={img?.url}
                     alt=""
                     onClick={() => setSelectedImage(index)}
-                    className={`w-20 h-20 object-cover rounded-lg cursor-pointer border ${
+                    className={`w-20 h-20 object-cover cursor-pointer border ${
                       selectedImage === index
                         ? "border-orange-500"
                         : "border-gray-200"
@@ -96,7 +101,7 @@ const OfferDetails = () => {
 
             <button
               disabled={!product?.stock}
-              className="mt-6 w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white py-3 rounded-xl transition text-lg font-semibold"
+              className="mt-6 w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-300 text-white py-3  transition text-lg font-semibold cursor-pointer"
             >
               {product?.stock ? "Dodaj do koszyka" : "Brak w magazynie"}
             </button>
@@ -106,7 +111,7 @@ const OfferDetails = () => {
                 <h2 className="text-xl font-semibold mb-4">Specyfikacja</h2>
 
                 <div className="space-y-2">
-                  {productData.parameters.map((param: any, index: number) => (
+                  {visibleParameters.map((param: any, index: number) => (
                     <div
                       key={index}
                       className="flex justify-between border-b pb-2 text-sm"
@@ -118,6 +123,15 @@ const OfferDetails = () => {
                     </div>
                   ))}
                 </div>
+
+                {parameters.length > 5 && (
+                  <button
+                    onClick={() => setShowParamsDrawer(true)}
+                    className="mt-4 text-orange-600 font-medium hover:underline cursor-pointer"
+                  >
+                    {showAllParams ? "Ukryj parametry" : "Wszystkie parametry"}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -146,6 +160,41 @@ const OfferDetails = () => {
           )}
         </div>
       </div>
+      {showParamsDrawer && (
+        <>
+          <div
+            onClick={() => setShowParamsDrawer(false)}
+            className="fixed inset-0 bg-black/40 z-40"
+          />
+
+          <div className="fixed top-0 left-0 h-full bg-white shadow-xl z-50 transform transition-transform duration-300 flex flex-col w-150">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center shrink-0">
+              <h2 className="text-xl font-semibold">Specyfikacja produktu</h2>
+
+              <button
+                onClick={() => setShowParamsDrawer(false)}
+                className="text-gray-500 hover:text-black text-xl cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-6 space-y-3 overflow-y-auto flex-1">
+              {productData?.parameters?.map((param: any, index: number) => (
+                <div
+                  key={index}
+                  className="flex justify-between border-b border-gray-200 pb-2 text-sm"
+                >
+                  <span className="text-gray-600">{param?.name}</span>
+                  <span className="font-medium text-right">
+                    {param?.valuesLabels?.join(", ") || "—"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };

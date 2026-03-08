@@ -2,8 +2,9 @@ import axios from "axios";
 import { useState } from "react";
 
 const AddReview = ({ productId }: { productId: string }) => {
-  const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
 
   const submit = async () => {
     const token = localStorage.getItem("token");
@@ -23,27 +24,41 @@ const AddReview = ({ productId }: { productId: string }) => {
   };
 
   return (
-    <div className="border p-4 rounded">
-      <h3>Dodaj opinię</h3>
+    <div className="border p-4 border-gray-200 ">
+      <h3 className="font-semibold mb-3">Dodaj opinię</h3>
 
-      <select
-        value={rating}
-        onChange={(e) => setRating(Number(e.target.value))}
-      >
-        <option value={5}>5 ⭐</option>
-        <option value={4}>4 ⭐</option>
-        <option value={3}>3 ⭐</option>
-        <option value={2}>2 ⭐</option>
-        <option value={1}>1 ⭐</option>
-      </select>
+      <div className="flex gap-1 mb-3" onMouseLeave={() => setHoverRating(0)}>
+        {[1, 2, 3, 4, 5].map((star) => {
+          const filled = star <= (hoverRating || rating);
+
+          return (
+            <svg
+              key={star}
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              onMouseEnter={() => setHoverRating(star)}
+              onClick={() => setRating(star)}
+              className={`w-8 h-8 cursor-pointer transition ${
+                filled ? "fill-yellow-400" : "fill-gray-300"
+              }`}
+            >
+              <path d="M12 17.3l6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.76-1.64 7.03z" />
+            </svg>
+          );
+        })}
+      </div>
 
       <textarea
-        className="w-full border mt-2"
+        className="w-full border mt-2 border-gray-200 p-2 "
+        placeholder="Napisz swoją opinię..."
         value={comment}
         onChange={(e) => setComment(e.target.value)}
       />
 
-      <button onClick={submit} className="mt-2 bg-blue-500 text-white p-2">
+      <button
+        onClick={submit}
+        className="mt-3 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 "
+      >
         Dodaj opinię
       </button>
     </div>

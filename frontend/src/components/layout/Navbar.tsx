@@ -117,7 +117,7 @@ const Navbar: React.FC = () => {
                     return (
                       <li
                         key={product.id}
-                        className="flex items-center gap-3 border-b pb-2"
+                        className="flex items-center gap-3 border-b border-gray-200 pb-2"
                       >
                         <div className="w-12 h-12 shrink-0">
                           <img
@@ -145,7 +145,7 @@ const Navbar: React.FC = () => {
                         </div>
 
                         <Link
-                          to={`/offers/${createSlug(product.product_data.name)}/${product.external_id}`}
+                          to={`/offers/${createSlug(product.product_data.name)}/${product.id}`}
                           className="text-orange-500 hover:underline text-xs ml-3 shrink-0"
                           onClick={() => setShowFavorites(false)}
                         >
@@ -300,7 +300,7 @@ const Navbar: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <div className="px-4 py-2 text-sm text-gray-500 border-b">
+                  <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-200">
                     Zalogowany jako:
                     <div className="font-semibold">{user?.email}</div>
                   </div>
