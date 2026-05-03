@@ -31,9 +31,6 @@ const OffersList = () => {
     return res.data;
   };
 
-  // =========================
-  // REACT QUERY
-  // =========================
   const { data: products = [], isLoading } = useQuery({
     // queryKey = unikalny klucz cache
     // kiedy zmieni się którykolwiek element

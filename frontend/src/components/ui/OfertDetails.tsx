@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 const OfferDetails = () => {
   const { slug, id } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [showAllParams, setShowAllParams] = useState(false);
+  const [showAllParams] = useState(false);
   const [showParamsDrawer, setShowParamsDrawer] = useState(false);
 
   const { user } = useAuth();
@@ -114,7 +114,7 @@ const OfferDetails = () => {
                   {visibleParameters.map((param: any, index: number) => (
                     <div
                       key={index}
-                      className="flex justify-between border-b pb-2 text-sm"
+                      className="flex justify-between border-b border-gray-300 pb-2 text-sm"
                     >
                       <span className="text-gray-600">{param?.name}</span>
                       <span className="font-medium text-right">

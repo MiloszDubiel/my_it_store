@@ -1,21 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useCart } from "../../context/CartContext";
 import { useFavorite } from "../../context/FavoritesContext";
 import { useAuth } from "../../context/AuthContext";
+import { addToCart, toogleShowCart } from "../../redux/slices/cartSlice";
+import { useAppDispatch } from "../../redux/hooks";
 
-interface OfferCardProps {
+type OfferCardProps = {
   id: string;
   product: any;
-}
+};
 
 const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
   const category = product.category_name || "Brak kategorii";
-  const { addToCart, toogleShowCart } = useCart();
+
   const { toggleFavorite, isFavorite } = useFavorite();
   const { isAuthenticated } = useAuth();
 
   const favorite = isFavorite(product.id as string);
+  const [favoriteMessage, setFavoriteMessage] = useState<string | null>(null);
 
   const importantParams = [
     "Marka",
@@ -25,6 +27,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
     "Pamięć RAM",
   ];
   const displayedParams: string[] = [];
+  const dispatch = useAppDispatch();
 
   importantParams.forEach((paramName) => {
     const param = product.product_data.parameters?.find(
@@ -80,12 +83,21 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
           onClick={(e) => e.preventDefault()}
         >
           <p className="text-2xl font-bold text-gray-900">{product.price} zł</p>
+          <p
+            className={`text-sm font-small ${
+              product.stock > 0 ? "text-green-600" : "text-red-500"
+            }`}
+          >
+            {product.stock > 0
+              ? `Dostępne: ${product.stock} szt.`
+              : "Brak w magazynie"}
+          </p>
 
           <button
             className="bg-orange-500 text-white px-6 py-2 hover:bg-orange-600 transition font-semibold cursor-pointer"
             onClick={() => {
-              addToCart(product);
-              toogleShowCart(true);
+              dispatch(addToCart(product));
+              dispatch(toogleShowCart(true));
             }}
           >
             Dodaj do koszyka
@@ -93,7 +105,19 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
 
           {isAuthenticated && (
             <button
-              onClick={() => toggleFavorite(id)}
+              onClick={() => {
+                toggleFavorite(id);
+
+                const message = favorite
+                  ? "Usunięto z ulubionych"
+                  : "Dodano do ulubionych";
+
+                setFavoriteMessage(message);
+
+                setTimeout(() => {
+                  setFavoriteMessage(null);
+                }, 2000);
+              }}
               className="transition cursor-pointer"
             >
               <svg
@@ -114,6 +138,11 @@ const OfferCard: React.FC<OfferCardProps> = ({ id, product }) => {
           )}
         </div>
       </div>
+      {favoriteMessage && (
+        <div className="fixed bottom-6 right-6 text-black border-orange-400 border px-4 py-2 shadow-lg z-50">
+          {favoriteMessage}
+        </div>
+      )}
     </Link>
   );
 };

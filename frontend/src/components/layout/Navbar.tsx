@@ -1,10 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useCart } from "../../context/CartContext";
-import type { CartItem } from "../../context/CartContext";
-import { useFavorite } from "../../context/FavoritesContext";
-import type { Product } from "../../types/ProductType";
 import {
   Heart,
   MessageCircle,
@@ -14,29 +10,35 @@ import {
   Search,
 } from "lucide-react";
 
+import { useFavorite } from "../../context/FavoritesContext";
+import type { Product } from "../../types/ProductType";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import {
+  removeFromCart,
+  updateQuantity,
+  clearCart,
+  toogleShowCart,
+} from "../../redux/slices/cartSlice";
+
 const Navbar: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+
   const [search, setSearch] = useState<string>("");
 
-  const { favorites } = useFavorite();
-  const [showFavorites, setShowFavorites] = useState(false);
-  const {
-    cart,
-    removeFromCart,
-    updateQuantity,
-    totalPrice,
-    showCard,
-    clearCart,
-    toogleShowCart,
-  } = useCart();
+  type ModalType = "cart" | "favorites" | "account" | "notifications" | null;
 
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const { favorites } = useFavorite();
+
+  const cart = useAppSelector((state) => state.cart.cart);
+  const dispatch = useAppDispatch();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    setIsOpen(false);
+    setActiveModal(null);
   };
 
   const createSlug = useCallback(
@@ -98,15 +100,17 @@ const Navbar: React.FC = () => {
           <Heart
             size={22}
             className="hover:text-orange-600 cursor-pointer"
-            onClick={() => setShowFavorites(!showFavorites)}
+            onClick={() =>
+              setActiveModal(activeModal === "favorites" ? null : "favorites")
+            }
           />
 
           {favorites.length > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+            <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">
               {favorites.length}
             </span>
           )}
-          {showFavorites && (
+          {activeModal === "favorites" && (
             <div className="absolute top-11.25 right-0 mt-3 w-125 bg-white border shadow-xl p-4 z-50 overflow-y-auto ax-h-[400px] border-gray-200">
               <h3 className="text-lg font-bold mb-3">Ulubione produkty</h3>
               {favorites.length === 0 ? (
@@ -147,7 +151,7 @@ const Navbar: React.FC = () => {
                         <Link
                           to={`/offers/${createSlug(product.product_data.name)}/${product.id}`}
                           className="text-orange-500 hover:underline text-xs ml-3 shrink-0"
-                          onClick={() => setShowFavorites(false)}
+                          onClick={() => setActiveModal(null)}
                         >
                           Zobacz
                         </Link>
@@ -171,7 +175,9 @@ const Navbar: React.FC = () => {
           <ShoppingCart
             size={22}
             className="hover:text-orange-600 cursor-pointer"
-            onClick={() => toogleShowCart(!showCard)}
+            onClick={() =>
+              setActiveModal(activeModal === "cart" ? null : "cart")
+            }
           />
 
           {totalItems > 0 && (
@@ -181,7 +187,7 @@ const Navbar: React.FC = () => {
           )}
         </div>
 
-        {showCard && (
+        {activeModal === "cart" && (
           <div className="absolute top-11.25 right-0 mt-3 w-125 bg-white border shadow-xl p-4 z-50  overflow-y-auto border-gray-200">
             <h2 className="text-xl font-bold mb-4">Twój koszyk</h2>
             {cart.length === 0 ? (
@@ -189,8 +195,11 @@ const Navbar: React.FC = () => {
             ) : (
               <>
                 <ul className="max-h-65 overflow-y-auto pr-2">
-                  {cart.map((item: CartItem) => (
-                    <li key={item.id} className="flex gap-3 mb-3 border-b pb-3">
+                  {cart.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex gap-3 mb-3 border-b border-gray-400 pb-3"
+                    >
                       <div className="w-16 h-16 shrink-0">
                         <img
                           src={
@@ -208,19 +217,45 @@ const Navbar: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-2 mt-1">
-                          <input
-                            type="number"
-                            className="w-14 border px-1 py-0.5"
-                            value={item.quantity}
-                            min={1}
-                            max={item.stock}
-                            onChange={(e) =>
-                              updateQuantity(
-                                item.id,
-                                Math.max(1, Number(e.target.value)),
-                              )
-                            }
-                          />
+                          <div className="flex items-center overflow-hidden">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch(
+                                  updateQuantity({
+                                    id: item.id,
+                                    quantity: Math.max(1, item.quantity - 1),
+                                  }),
+                                );
+                              }}
+                              className="px-2 py-1 bg-orange-100 hover:bg-orange-500"
+                            >
+                              −
+                            </button>
+
+                            <span className="px-3 text-sm min-w-7.5 text-center">
+                              {item.quantity}
+                            </span>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch(
+                                  updateQuantity({
+                                    id: item.id,
+                                    quantity: Math.min(
+                                      item.stock,
+                                      item.quantity + 1,
+                                    ),
+                                  }),
+                                );
+                              }}
+                              className="px-2 py-1 bg-orange-100 hover:bg-orange-500"
+                            >
+                              +
+                            </button>
+                          </div>
+
                           <span className="text-sm text-gray-500">
                             x {item.price} zł
                           </span>
@@ -232,7 +267,9 @@ const Navbar: React.FC = () => {
                           {(item.price * item.quantity).toFixed(2)} zł
                         </div>
                         <button
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() =>
+                            dispatch(removeFromCart({ id: item.id }))
+                          }
                           className="text-xs text-red-500 hover:underline"
                         >
                           Usuń
@@ -241,15 +278,23 @@ const Navbar: React.FC = () => {
                     </li>
                   ))}
                 </ul>
-                <div className="mt-4 border-t pt-3">
+                <div className="mt-4 pt-3">
                   <div className="flex justify-between font-bold text-lg">
                     <span>Suma:</span>
-                    <span>{totalPrice.toFixed(2)} zł</span>
+                    <span>
+                      {cart
+                        .reduce(
+                          (sum, item) => sum + item.price * item.quantity,
+                          0,
+                        )
+                        .toFixed(2)}{" "}
+                      zł
+                    </span>
                   </div>
 
                   <button
                     onClick={() => {
-                      toogleShowCart(false);
+                      dispatch(toogleShowCart(false));
                       navigate("/cart");
                     }}
                     className="w-full mt-3 bg-orange-500 text-white py-2 rounded hover:bg-orange-600 transition"
@@ -258,7 +303,7 @@ const Navbar: React.FC = () => {
                   </button>
 
                   <button
-                    onClick={clearCart}
+                    onClick={() => dispatch(clearCart())}
                     className="w-full mt-2 text-sm text-red-500 hover:underline"
                   >
                     Wyczyść koszyk
@@ -270,7 +315,9 @@ const Navbar: React.FC = () => {
         )}
         <div className="relative cursor-pointer">
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() =>
+              setActiveModal(activeModal === "account" ? null : "account")
+            }
             className="flex items-center gap-2 hover:text-orange-600 transition"
           >
             <User size={22} />
@@ -279,21 +326,22 @@ const Navbar: React.FC = () => {
             </span>
           </button>
 
-          {isOpen && (
+          {activeModal === "account" && (
             <div className="absolute right-0 mt-2 w-56 bg-white border-gray-400 shadow-lg  py-2 z-50 ">
               {!isAuthenticated ? (
                 <>
                   <Link
                     to="/login"
                     className="block px-4 py-2 hover:bg-orange-50"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => setActiveModal(null)}
                   >
                     Zaloguj się
                   </Link>
+
                   <Link
                     to="/register"
                     className="block px-4 py-2 hover:bg-orange-50"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => setActiveModal(null)}
                   >
                     Zarejestruj się
                   </Link>
@@ -308,7 +356,7 @@ const Navbar: React.FC = () => {
                   <Link
                     to="/profile"
                     className="block px-4 py-2 hover:bg-orange-50"
-                    onClick={() => setIsOpen(false)}
+                    onClick={() => setActiveModal(null)}
                   >
                     Mój profil
                   </Link>
@@ -317,7 +365,7 @@ const Navbar: React.FC = () => {
                     <Link
                       to="/orders"
                       className="block px-4 py-2 hover:bg-orange-50"
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => setActiveModal(null)}
                     >
                       Moje zamówienia
                     </Link>
@@ -328,14 +376,14 @@ const Navbar: React.FC = () => {
                       <Link
                         to="/seller/dashboard"
                         className="block px-4 py-2 hover:bg-orange-50"
-                        onClick={() => setIsOpen(false)}
+                        onClick={() => setActiveModal(null)}
                       >
                         Panel sprzedawcy
                       </Link>
                       <Link
                         to="/seller/products"
                         className="block px-4 py-2 hover:bg-orange-50"
-                        onClick={() => setIsOpen(false)}
+                        onClick={() => setActiveModal(null)}
                       >
                         Moje produkty
                       </Link>

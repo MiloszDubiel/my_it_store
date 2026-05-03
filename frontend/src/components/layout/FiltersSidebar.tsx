@@ -175,14 +175,14 @@ const FiltersSidebar = ({
 
       <button
         onClick={updateURL}
-        className="w-full bg-gray-100 hover:bg-orange-100 hover:text-orange-500 transition py-2 rounded"
+        className="w-full bg-gray-100 hover:bg-orange-100 hover:text-orange-500 transition py-2 cursor-pointer"
       >
         Wyszukaj
       </button>
 
       <button
         onClick={resetFilters}
-        className="w-full bg-gray-100 hover:bg-orange-100 hover:text-orange-500 transition py-2 rounded"
+        className="w-full bg-gray-100 hover:bg-orange-100 hover:text-orange-500 transition py-2 cursor-pointer"
       >
         Resetuj filtry
       </button>
